@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      width: 560px;
+      max-width: 100%;
+      padding: 32px;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: #0f172a;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1 svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .form-row .field {
+      flex: 1;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+      color: #0f172a;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .field input::placeholder {
+      color: #94a3b8;
+    }
+
+    .btn-add {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-add:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-add:active {
+      transform: translateY(0);
+    }
+
+    .summary {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .summary-card {
+      flex: 1;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .summary-card .label {
+      font-size: 12px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .summary-card .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    .summary-card .value.positive {
+      color: #059669;
+    }
+
+    .summary-card .value.negative {
+      color: #dc2626;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .controls select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      background: #fff;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .controls select:focus {
+      border-color: #6366f1;
+    }
+
+    .expense-list {
+      list-style: none;
+      border-radius: 12px;
+      border: 1px solid #f1f5f9;
+      overflow: hidden;
+    }
+
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s;
+    }
+
+    .expense-item:last-child {
+      border-bottom: none;
+    }
+
+    .expense-item:hover {
+      background: #f8fafc;
+    }
+
+    .expense-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .category-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .expense-details {
+      min-width: 0;
+    }
+
+    .expense-name {
+      font-weight: 600;
+      color: #0f172a;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .expense-date {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+
+    .expense-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .expense-amount {
+      font-weight: 700;
+      font-size: 15px;
+      color: #dc2626;
+      white-space: nowrap;
+    }
+
+    .expense-amount.income {
+      color: #059669;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      color: #94a3b8;
+      transition: background 0.15s, color 0.15s;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .btn-icon:hover {
+      background: #f1f5f9;
+    }
+
+    .btn-delete:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .btn-edit:hover {
+      color: #6366f1;
+      background: #eef2ff;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #94a3b8;
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .empty-state .sub {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #0f172a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      width: 420px;
+      max-width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal h2 {
+      font-size: 20px;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+
+    .modal .field {
+      margin-bottom: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s;
+    }
+
+    .btn-cancel {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-cancel:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+    }
+
+    .btn-save:hover {
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .clear-btn:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"></line>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+      </svg>
+      Expense Tracker
+    </h1>
+    <p class="subtitle">Track your spending, stay in control.</p>
+
+    <div class="form-row">
+      <div class="field">
+        <label for="nameInput">Name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Groceries" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="amountInput">Amount (₦)</label>
+        <input type="number" id="amountInput" placeholder="0.00" min="0" step="0.01" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field" style="flex: 1.5;">
+        <label for="categoryInput">Category</label>
+        <select id="categoryInput">
+          <option value="Food">🍔 Food</option>
+          <option value="Transport">🚗 Transport</option>
+          <option value="Shopping">🛍️ Shopping</option>
+          <option value="Entertainment">🎬 Entertainment</option>
+          <option value="Bills">📄 Bills</option>
+          <option value="Health">💊 Health</option>
+          <option value="Education">📚 Education</option>
+          <option value="Other">📦 Other</option>
+        </select>
+      </div>
+      <div class="field" style="flex: 1;">
+        <label for="dateInput">Date</label>
+        <input type="date" id="dateInput">
+      </div>
+    </div>
+
+    <button class="btn-add" id="addBtn">+ Add Expense</button>
+
+    <div class="summary">
+      <div class="summary-card">
+        <div class="label">Total Expenses</div>
+        <div class="value negative" id="totalDisplay">₦0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Count</div>
+        <div class="value" id="countDisplay">0</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <select id="filterCategory">
+        <option value="All">All Categories</option>
+        <option value="Food">🍔 Food</option>
+        <option value="Transport">🚗 Transport</option>
+        <option value="Shopping">🛍️ Shopping</option>
+        <option value="Entertainment">🎬 Entertainment</option>
+        <option value="Bills">📄 Bills</option>
+        <option value="Health">💊 Health</option>
+        <option value="Education">📚 Education</option>
+        <option value="Other">📦 Other</option>
+      </select>
+      <select id="sortBy">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="highest">Highest Amount</option>
+        <option value="lowest">Lowest Amount</option>
+      </select>
+      <button class="clear-btn" id="clearBtn">Clear All</button>
+    </div>
+
+    <ul class="expense-list" id="expenseList">
+      <li class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        <p>No expenses yet</p>
+        <p class="sub">Add one using the form above</p>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>Edit Expense</h2>
+      <div class="field">
+        <label for="editName">Name</label>
+        <input type="text" id="editName" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="editAmount">Amount (₦)</label>
+        <input type="number" id="editAmount" min="0" step="0.01" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="editCategory">Category</label>
+        <select id="editCategory">
+          <option value="Food">🍔 Food</option>
+          <option value="Transport">🚗 Transport</option>
+          <option value="Shopping">🛍️ Shopping</option>
+          <option value="Entertainment">🎬 Entertainment</option>
+          <option value="Bills">📄 Bills</option>
+          <option value="Health">💊 Health</option>
+          <option value="Education">📚 Education</option>
+          <option value="Other">📦 Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="editDate">Date</label>
+        <input type="date" id="editDate">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelEdit">Cancel</button>
+        <button class="btn-save" id="saveEdit">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const CATEGORY_ICONS = {
+      Food: '🍔',
+      Transport: '🚗',
+      Shopping: '🛍️',
+      Entertainment: '🎬',
+      Bills: '📄',
+      Health: '💊',
+      Education: '📚',
+      Other: '📦',
+    };
+
+    const CATEGORY_COLORS = {
+      Food: '#fef3c7',
+      Transport: '#dbeafe',
+      Shopping: '#fce7f3',
+      Entertainment: '#ede9fe',
+      Bills: '#dcfce7',
+      Health: '#e0e7ff',
+      Education: '#fae8ff',
+      Other: '#f1f5f9',
+    };
+
+    let expenses = [];
+    let editingId = null;
+
+    const nameInput = document.getElementById('nameInput');
+    const amountInput = document.getElementById('amountInput');
+    const categoryInput = document.getElementById('categoryInput');
+    const dateInput = document.getElementById('dateInput');
+    const addBtn = document.getElementById('addBtn');
+    const expenseList = document.getElementById('expenseList');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const countDisplay = document.getElementById('countDisplay');
+    const filterCategory = document.getElementById('filterCategory');
+    const sortBy = document.getElementById('sortBy');
+    const clearBtn = document.getElementById('clearBtn');
+    const toast = document.getElementById('toast');
+    const editModal = document.getElementById('editModal');
+    const editName = document.getElementById('editName');
+    const editAmount = document.getElementById('editAmount');
+    const editCategory = document.getElementById('editCategory');
+    const editDate = document.getElementById('editDate');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const saveEdit = document.getElementById('saveEdit');
+
+    function formatNaira(amount) {
+      return '₦' + Number(amount).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+    }
+
+    function loadFromStorage() {
+      try {
+        const data = localStorage.getItem('expenses');
+        if (data) {
+          expenses = JSON.parse(data);
+        }
+      } catch {
+        expenses = [];
+      }
+    }
+
+    function getFilteredAndSorted() {
+      let list = [...expenses];
+      const cat = filterCategory.value;
+      if (cat !== 'All') {
+        list = list.filter(e => e.category === cat);
+      }
+      const sort = sortBy.value;
+      switch (sort) {
+        case 'newest':
+          list.sort((a, b) => b.date.localeCompare(a.date));
+          break;
+        case 'oldest':
+          list.sort((a, b) => a.date.localeCompare(b.date));
+          break;
+        case 'highest':
+          list.sort((a, b) => b.amount - a.amount);
+          break;
+        case 'lowest':
+          list.sort((a, b) => a.amount - b.amount);
+          break;
+      }
+      return list;
+    }
+
+    function render() {
+      const list = getFilteredAndSorted();
+      expenseList.innerHTML = '';
+
+      if (list.length === 0) {
+        expenseList.innerHTML =
+          '<li class="empty-state">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' +
+          '</svg>' +
+          '<p>No expenses yet</p>' +
+          '<p class="sub">Add one using the form above</p>' +
+          '</li>';
+      } else {
+        for (const exp of list) {
+          const li = document.createElement('li');
+          li.className = 'expense-item';
+
+          const left = document.createElement('div');
+          left.className = 'expense-left';
+
+          const badge = document.createElement('div');
+          badge.className = 'category-badge';
+          badge.style.background = CATEGORY_COLORS[exp.category] || '#f1f5f9';
+          badge.textContent = CATEGORY_ICONS[exp.category] || '📦';
+
+          const details = document.createElement('div');
+          details.className = 'expense-details';
+
+          const nameSpan = document.createElement('div');
+          nameSpan.className = 'expense-name';
+          nameSpan.textContent = exp.name;
+
+          const dateSpan = document.createElement('div');
+          dateSpan.className = 'expense-date';
+          dateSpan.textContent = formatDate(exp.date) + ' · ' + exp.category;
+
+          details.appendChild(nameSpan);
+          details.appendChild(dateSpan);
+
+          const right = document.createElement('div');
+          right.className = 'expense-right';
+
+          const amountSpan = document.createElement('span');
+          amountSpan.className = 'expense-amount';
+          amountSpan.textContent = formatNaira(exp.amount);
+
+          const editBtn = document.createElement('button');
+          editBtn.className = 'btn-icon btn-edit';
+          editBtn.textContent = '✎';
+          editBtn.setAttribute('aria-label', 'Edit expense');
+          editBtn.addEventListener('click', () => openEditModal(exp.id));
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'btn-icon btn-delete';
+          delBtn.textContent = '✕';
+          delBtn.setAttribute('aria-label', 'Delete expense');
+          delBtn.addEventListener('click', () => deleteExpense(exp.id));
+
+          left.appendChild(badge);
+          left.appendChild(details);
+          right.appendChild(amountSpan);
+          right.appendChild(editBtn);
+          right.appendChild(delBtn);
+          li.appendChild(left);
+          li.appendChild(right);
+          expenseList.appendChild(li);
+        }
+      }
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+      totalDisplay.textContent = formatNaira(total);
+      countDisplay.textContent = expenses.length;
+    }
+
+    function addExpense() {
+      const name = nameInput.value.trim();
+      const amount = parseFloat(amountInput.value);
+      const category = categoryInput.value;
+      const date = dateInput.value || todayStr();
+
+      if (!name) {
+        nameInput.focus();
+        showToast('Please enter an expense name');
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        amountInput.focus();
+        showToast('Please enter a valid amount');
+        return;
+      }
+
+      expenses.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name,
+        amount: Math.round(amount * 100) / 100,
+        category,
+        date,
+      });
+
+      nameInput.value = '';
+      amountInput.value = '';
+      dateInput.value = todayStr();
+      categoryInput.value = 'Food';
+      nameInput.focus();
+      saveToStorage();
+      render();
+      showToast('Expense added!');
+    }
+
+    function deleteExpense(id) {
+      expenses = expenses.filter(e => e.id !== id);
+      saveToStorage();
+      render();
+      showToast('Expense deleted');
+    }
+
+    function openEditModal(id) {
+      const exp = expenses.find(e => e.id === id);
+      if (!exp) return;
+      editingId = id;
+      editName.value = exp.name;
+      editAmount.value = exp.amount;
+      editCategory.value = exp.category;
+      editDate.value = exp.date;
+      editModal.classList.add('active');
+      editName.focus();
+    }
+
+    function closeEditModal() {
+      editModal.classList.remove('active');
+      editingId = null;
+    }
+
+    function saveEditHandler() {
+      if (!editingId) return;
+      const name = editName.value.trim();
+      const amount = parseFloat(editAmount.value);
+      const category = editCategory.value;
+      const date = editDate.value;
+
+      if (!name) {
+        showToast('Please enter a name');
+        editName.focus();
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        showToast('Please enter a valid amount');
+        editAmount.focus();
+        return;
+      }
+
+      const exp = expenses.find(e => e.id === editingId);
+      if (exp) {
+        exp.name = name;
+        exp.amount = Math.round(amount * 100) / 100;
+        exp.category = category;
+        exp.date = date;
+        saveToStorage();
+        render();
+        showToast('Expense updated!');
+      }
+      closeEditModal();
+    }
+
+    function clearAll() {
+      if (expenses.length === 0) return;
+      if (confirm('Delete all expenses?')) {
+        expenses = [];
+        saveToStorage();
+        render();
+        showToast('All expenses cleared');
+      }
+    }
+
+    /*** Event Listeners ***/
+    addBtn.addEventListener('click', addExpense);
+
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        amountInput.focus();
+      }
+    });
+
+    amountInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addExpense();
+      }
+    });
+
+    filterCategory.addEventListener('change', render);
+    sortBy.addEventListener('change', render);
+    clearBtn.addEventListener('click', clearAll);
+
+    cancelEdit.addEventListener('click', closeEditModal);
+    saveEdit.addEventListener('click', saveEditHandler);
+
+    editModal.addEventListener('click', (e) => {
+      if (e.target === editModal) closeEditModal();
+    });
+
+    editName.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        editAmount.focus();
+      }
+    });
+
+    editAmount.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveEditHandler();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && editModal.classList.contains('active')) {
+        closeEditModal();
+      }
+    });
+
+    /*** Init ***/
+    dateInput.value = todayStr();
+    loadFromStorage();
+    render();
+  </script>
+</body>
+</html>
